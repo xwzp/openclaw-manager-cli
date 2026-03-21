@@ -27,8 +27,8 @@ function createMockFsPort(): FsPort & { removed: string[] } {
 }
 
 describe('UninstallService', () => {
-  it('UNINSTALL_COMPONENTS has 4 items', () => {
-    expect(UNINSTALL_COMPONENTS).toHaveLength(4)
+  it('UNINSTALL_COMPONENTS has 5 items', () => {
+    expect(UNINSTALL_COMPONENTS).toHaveLength(5)
   })
 
   it('stopGateway runs openclaw gateway stop', async () => {
