@@ -12,6 +12,15 @@ import { createDepService } from '../core/dep-service.js'
 export async function installCommand(options: { mode?: string }) {
   const home = homedir()
 
+  // Pre-check: if ~/.openclaw already exists (and not a resume), block install
+  const fsPort = createFsAdapter()
+  const openclawDir = path.join(home, '.openclaw')
+  const progressFile = path.join(home, '.config', 'openclaw-manager', 'install-progress.json')
+  if (await fsPort.exists(openclawDir) && !(await fsPort.exists(progressFile))) {
+    log.error('检测到 ~/.openclaw 已存在，请先运行 uninstall 卸载后再安装')
+    process.exit(1)
+  }
+
   // Resolve mode
   let mode: 'standard' | 'sandbox'
   if (options.mode) {
@@ -28,7 +37,6 @@ export async function installCommand(options: { mode?: string }) {
 
   // Create adapters and service
   const shell = createShellAdapter()
-  const fsPort = createFsAdapter()
   const configRepo = createFsConfigRepo(path.join(home, '.openclaw', 'openclaw.json'))
   const mgrConfigRepo = createFsManagerConfigRepo(
     path.join(home, '.config', 'openclaw-manager', 'config.json'),
