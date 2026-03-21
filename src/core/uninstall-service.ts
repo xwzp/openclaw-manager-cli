@@ -31,9 +31,15 @@ export function createUninstallService(shell: ShellPort, fsPort: FsPort) {
           await shell.exec('docker ps -a --filter "name=openclaw" -q | xargs docker rm -f 2>/dev/null')
           await shell.exec('docker images --filter "reference=*openclaw*" -q | xargs docker rmi -f 2>/dev/null')
           break
-        case 'openclaw-dir':
+        case 'openclaw-dir': {
+          // Unload autocommit LaunchAgent
+          const plist = path.join(home, 'Library', 'LaunchAgents', 'com.openclaw.autocommit.plist')
+          await shell.exec(`launchctl unload "${plist}" 2>/dev/null`)
+          await fsPort.remove(plist)
+          // Remove ~/.openclaw
           await fsPort.remove(path.join(home, '.openclaw'))
           break
+        }
         case 'manager-config':
           await fsPort.remove(path.join(home, '.config', 'openclaw-manager'))
           break

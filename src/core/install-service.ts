@@ -154,15 +154,31 @@ export function createInstallService(
     })
 
     steps.push({
-      name: 'git-autocommit-cron',
-      label: '创建自动提交定时任务',
+      name: 'git-autocommit',
+      label: '安装自动提交 LaunchAgent',
       async run() {
         const home = homedir()
-        const openclawDir = path.join(home, '.openclaw')
-        const commitScript = `cd "${openclawDir}" && git add -A && git diff --cached --quiet || git commit -m "auto: periodic commit"`
-        await shell.exec(
-          `openclaw cron add --agent main --name "git-autocommit" --every 10m --session isolated --light-context --message 'Run this shell command silently and report nothing: ${commitScript}'`,
+        const templateDir = path.join(
+          path.dirname(fileURLToPath(import.meta.url)),
+          '..', 'templates',
         )
+
+        // Copy autocommit script
+        const scriptsDir = path.join(home, '.openclaw', 'scripts')
+        const logsDir = path.join(home, '.openclaw', 'logs')
+        await shell.exec(`mkdir -p "${scriptsDir}" "${logsDir}"`)
+        await shell.exec(`cp "${path.join(templateDir, 'openclaw-autocommit.sh')}" "${path.join(scriptsDir, 'autocommit.sh')}"`)
+        await shell.exec(`chmod +x "${path.join(scriptsDir, 'autocommit.sh')}"`)
+
+        // Install LaunchAgent plist with HOME replaced
+        const plistName = 'com.openclaw.autocommit.plist'
+        const plistDest = path.join(home, 'Library', 'LaunchAgents', plistName)
+        let plistContent = await fsPort.readFile(path.join(templateDir, plistName))
+        plistContent = plistContent.replaceAll('{{HOME}}', home)
+        await fsPort.writeFile(plistDest, plistContent)
+
+        // Load the LaunchAgent
+        await shell.exec(`launchctl unload "${plistDest}" 2>/dev/null; launchctl load "${plistDest}"`)
       },
     })
 
