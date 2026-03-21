@@ -1,7 +1,7 @@
 import { homedir } from 'os'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import type { ConfigRepo, ManagerConfigRepo, FsPort } from './ports.js'
+import type { ConfigRepo, ManagerConfigRepo, FsPort, ShellPort } from './ports.js'
 import type { AgentAddParams, AgentEditParams, AgentInfo, OpenClawConfig } from '../types.js'
 import { DEFAULT_MODELS, BROWSER_COLORS } from './configgen.js'
 
@@ -14,6 +14,7 @@ export function createAgentService(
   configRepo: ConfigRepo,
   mgrConfigRepo: ManagerConfigRepo,
   fsPort: FsPort,
+  shell?: ShellPort,
 ) {
   async function nextCdpPort(cfg: OpenClawConfig): Promise<number> {
     const profiles = cfg.browser?.profiles ?? {}
@@ -127,6 +128,7 @@ export function createAgentService(
 
     async removeAgent(id: string): Promise<void> {
       const cfg = await configRepo.load()
+      const home = homedir()
 
       delete cfg.models.providers[`nebula-${id}`]
       cfg.agents.list = cfg.agents.list.filter(a => a.id !== id)
@@ -141,6 +143,21 @@ export function createAgentService(
       }
 
       await configRepo.save(cfg)
+
+      // Move agent data to Trash
+      if (shell) {
+        const dirsToTrash = [
+          path.join(home, '.openclaw', 'workspaces', id),
+          path.join(home, '.openclaw', 'agents', id),
+        ]
+        for (const dir of dirsToTrash) {
+          if (await fsPort.exists(dir)) {
+            await shell.exec(
+              `osascript -e 'tell application "Finder" to delete POSIX file "${dir}"'`,
+            )
+          }
+        }
+      }
     },
 
     async editAgent(id: string, params: AgentEditParams): Promise<void> {

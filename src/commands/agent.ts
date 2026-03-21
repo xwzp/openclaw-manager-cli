@@ -6,6 +6,7 @@ import { log } from '../utils/logger.js'
 import { maskSecret } from '../utils/mask.js'
 import { createFsConfigRepo, createFsManagerConfigRepo } from '../adapters/fs-config-repo.js'
 import { createFsAdapter } from '../adapters/fs-adapter.js'
+import { createShellAdapter } from '../adapters/shell-adapter.js'
 import { createAgentService } from '../core/agent-service.js'
 import { DEFAULT_MODELS } from '../core/configgen.js'
 import type { AgentAddParams, AgentInfo } from '../types.js'
@@ -31,7 +32,8 @@ export async function agentCommand() {
     process.exit(1)
   }
 
-  const svc = createAgentService(configRepo, mgrConfigRepo, fsPort)
+  const shell = createShellAdapter()
+  const svc = createAgentService(configRepo, mgrConfigRepo, fsPort, shell)
 
   // Main loop
   while (true) {
