@@ -144,17 +144,17 @@ export function createAgentService(
 
       await configRepo.save(cfg)
 
-      // Move agent data to Trash
-      if (shell) {
-        const dirsToTrash = [
-          path.join(home, '.openclaw', 'workspaces', id),
-          path.join(home, '.openclaw', 'agents', id),
-        ]
-        for (const dir of dirsToTrash) {
-          if (await fsPort.exists(dir)) {
-            await shell.exec(
-              `osascript -e 'tell application "Finder" to delete POSIX file "${dir}"'`,
-            )
+      // Move agent data to ~/.Trash
+      const trashDir = path.join(home, '.Trash')
+      const dirsToTrash = [
+        path.join(home, '.openclaw', 'workspaces', id),
+        path.join(home, '.openclaw', 'agents', id),
+      ]
+      for (const dir of dirsToTrash) {
+        if (await fsPort.exists(dir)) {
+          const dest = path.join(trashDir, `${path.basename(dir)}-${Date.now()}`)
+          if (shell) {
+            await shell.exec(`mv "${dir}" "${dest}"`)
           }
         }
       }
