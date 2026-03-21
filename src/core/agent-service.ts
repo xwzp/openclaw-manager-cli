@@ -103,9 +103,9 @@ export function createAgentService(
 
       await configRepo.save(cfg)
 
-      // Create workspace
-      const memoryDir = path.join(workspace, 'memory')
-      await fsPort.mkdir(memoryDir)
+      // Create workspace directories
+      await fsPort.mkdir(path.join(workspace, 'memory'))
+      await fsPort.mkdir(path.join(home, '.openclaw', 'agents', params.id, 'sessions'))
 
       // Copy templates
       const templateDir = path.join(

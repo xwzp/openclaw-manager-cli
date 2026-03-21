@@ -151,10 +151,11 @@ describe('AgentService', () => {
       expect(configRepo.data.browser.profiles.a8.color).toBe('#FF4500')
     })
 
-    it('creates workspace directory', async () => {
+    it('creates workspace and sessions directories', async () => {
       const svc = createAgentService(configRepo, mgrRepo, fsPort)
       await svc.addAgent({ id: 'bob', name: 'Bob', apiKey: 'k', modelId: 'claude-opus-4-5', feishuAppId: 'c', feishuAppSecret: 's' })
       expect(fsPort.dirs).toContain(`${process.env.HOME}/.openclaw/workspaces/bob/memory`)
+      expect(fsPort.dirs).toContain(`${process.env.HOME}/.openclaw/agents/bob/sessions`)
     })
   })
 
