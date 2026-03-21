@@ -1,0 +1,55 @@
+# 忽略所有
+*
+
+# openclaw.json
+!openclaw.json
+
+# 保留 workspaces/ 下所有 workspace 的核心文件
+!workspaces/
+!workspaces/*/
+!workspaces/*/AGENTS.md
+!workspaces/*/SOUL.md
+!workspaces/*/USER.md
+!workspaces/*/MEMORY.md
+!workspaces/*/MEMORY-PROJECT.md
+!workspaces/*/MEMORY-LESSONS.md
+!workspaces/*/TOOLS.md
+!workspaces/*/HEARTBEAT.md
+!workspaces/*/IDENTITY.md
+!workspaces/*/.gitignore
+!workspaces/*/memory/
+!workspaces/*/memory/**
+
+# 保留 scripts（不含 venv 和缓存）
+!workspaces/*/scripts/
+!workspaces/*/scripts/**
+# 排除 venv 和缓存
+workspaces/*/scripts/**/venv/
+workspaces/*/scripts/**/__pycache__/
+workspaces/*/scripts/**/*.pyc
+
+# 保留 skills
+!workspaces/*/skills/
+!workspaces/*/skills/**
+
+# 保留顶层 skills（全局技能）
+!skills/
+!skills/**
+
+# 忽略 workspaces 下所有 node_modules
+workspaces/**/node_modules/
+
+# 保留 food-photos
+!workspaces/*/food-photos/
+!workspaces/*/food-photos/**
+
+# 保留 cron 任务配置
+!cron/
+!cron/jobs.json
+
+# 保留 gitignore 自己
+!.gitignore
+**/.DS_Store
+
+# RAG knowledge sources (cloned repos, auto-updated)
+workspaces/*/rag/

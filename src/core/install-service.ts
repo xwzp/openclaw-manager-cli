@@ -103,6 +103,29 @@ export function createInstallService(
     }
 
     steps.push({
+      name: 'git-init',
+      label: '初始化 ~/.openclaw 为 Git 仓库',
+      async run() {
+        const home = homedir()
+        const openclawDir = path.join(home, '.openclaw')
+        const gitignoreSrc = path.join(
+          path.dirname(fileURLToPath(import.meta.url)),
+          '..', 'templates', 'openclaw-gitignore',
+        )
+        // Copy .gitignore
+        await shell.exec(`cp "${gitignoreSrc}" "${path.join(openclawDir, '.gitignore')}"`)
+        // Init git repo if not already
+        const check = await shell.exec('git rev-parse --is-inside-work-tree', { cwd: openclawDir })
+        if (check.code !== 0) {
+          await shell.exec('git init', { cwd: openclawDir })
+        }
+        // Initial commit
+        await shell.exec('git add -A', { cwd: openclawDir })
+        await shell.exec('git commit -m "init: openclaw setup" --allow-empty', { cwd: openclawDir })
+      },
+    })
+
+    steps.push({
       name: 'global-skills',
       label: '安装全局 Skills',
       async run() {
@@ -127,6 +150,19 @@ export function createInstallService(
         for (const hook of DEFAULT_HOOKS) {
           await skillService.enableHook(hook)
         }
+      },
+    })
+
+    steps.push({
+      name: 'git-autocommit-cron',
+      label: '创建自动提交定时任务',
+      async run() {
+        const home = homedir()
+        const openclawDir = path.join(home, '.openclaw')
+        const commitScript = `cd "${openclawDir}" && git add -A && git diff --cached --quiet || git commit -m "auto: periodic commit"`
+        await shell.exec(
+          `openclaw cron add --agent main --name "git-autocommit" --every 10m --session isolated --light-context --message 'Run this shell command silently and report nothing: ${commitScript}'`,
+        )
       },
     })
 
