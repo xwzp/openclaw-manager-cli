@@ -1,3 +1,6 @@
+import { homedir } from 'os'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import type { ConfigRepo, ManagerConfigRepo, InstallProgressRepo, ShellPort, FsPort } from './ports.js'
 import type { InstallProgress } from '../types.js'
 import { generateBaseConfig, applyStandardMode, applySandboxMode, STANDARD_SKILLS, SANDBOX_SKILLS, DEFAULT_HOOKS } from './configgen.js'
@@ -98,6 +101,20 @@ export function createInstallService(
         },
       })
     }
+
+    steps.push({
+      name: 'global-skills',
+      label: '安装全局 Skills',
+      async run() {
+        const home = homedir()
+        const destDir = path.join(home, '.openclaw', 'skills')
+        const srcDir = path.join(
+          path.dirname(fileURLToPath(import.meta.url)),
+          '..', 'templates', 'skills',
+        )
+        await shell.exec(`cp -r "${srcDir}/." "${destDir}/"`)
+      },
+    })
 
     steps.push({
       name: 'skills',
