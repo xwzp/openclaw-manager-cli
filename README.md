@@ -4,39 +4,17 @@ OpenClaw 安装和 Agent 管理的命令行工具。
 
 ## 使用方式
 
-### 发布到 npm 后（推荐）
+需要 Node.js >= 18。
 
 ```bash
-npx openclaw-manager-cli install
-npx openclaw-manager-cli agent
-npx openclaw-manager-cli uninstall
-```
+# 安装 OpenClaw
+npx github:xwzp/openclaw-manager-cli install
 
-### 从源码运行
+# 管理 Agent
+npx github:xwzp/openclaw-manager-cli agent
 
-```bash
-git clone <repo-url>
-cd openclaw-manager-cli
-npm install
-npm run dev:install      # 安装
-npm run dev:agent        # 管理 Agent
-npm run dev:uninstall    # 卸载
-```
-
-### 在别人的电脑上使用
-
-如果还没发布到 npm，可以直接从 git 仓库运行：
-
-```bash
-# 方式一：npx 直接从 git 运行（需要对方有 Node.js >= 18）
-npx github:<用户名>/openclaw-manager-cli install
-
-# 方式二：clone 后运行
-git clone <repo-url>
-cd openclaw-manager-cli
-npm install
-npm run build
-node dist/index.js install
+# 卸载
+npx github:xwzp/openclaw-manager-cli uninstall
 ```
 
 ## 命令
