@@ -144,6 +144,22 @@ export function createAgentService(
 
       await configRepo.save(cfg)
 
+      // Remove agent's cron jobs
+      if (shell) {
+        const result = await shell.exec('openclaw cron list --all --json')
+        if (result.code === 0 && result.stdout) {
+          try {
+            const data = JSON.parse(result.stdout)
+            const agentJobs = (data.jobs ?? []).filter((j: any) => j.agent === id)
+            for (const job of agentJobs) {
+              await shell.exec(`openclaw cron rm ${job.id}`)
+            }
+          } catch {
+            // cron list parse failed, skip
+          }
+        }
+      }
+
       // Move agent data to ~/.Trash
       const trashDir = path.join(home, '.Trash')
       const dirsToTrash = [
