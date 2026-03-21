@@ -18,7 +18,7 @@ export function createInstallService(
   configRepo: ConfigRepo,
   mgrConfigRepo: ManagerConfigRepo,
   progressRepo: InstallProgressRepo,
-  _fsPort: FsPort,
+  fsPort: FsPort,
 ) {
   const depService = createDepService(shell)
   const skillService = createSkillService(shell)
