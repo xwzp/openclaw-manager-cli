@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { maskSecret } from './mask.js'
 
 describe('maskSecret', () => {
-  it('masks middle of normal-length string', () => {
+  it('masks middle of normal-length string (default 4+3)', () => {
     expect(maskSecret('sk-abcdefghijklmnop')).toBe('sk-a...nop')
   })
 
@@ -10,7 +10,7 @@ describe('maskSecret', () => {
     expect(maskSecret('cli_a1b2c3d4')).toBe('cli_...3d4')
   })
 
-  it('returns stars if too short to mask (<=7 chars)', () => {
+  it('returns stars if too short to mask', () => {
     expect(maskSecret('short')).toBe('*****')
   })
 
@@ -20,5 +20,13 @@ describe('maskSecret', () => {
 
   it('handles empty string', () => {
     expect(maskSecret('')).toBe('')
+  })
+
+  it('supports custom head and tail length', () => {
+    expect(maskSecret('sk-abcdefghijklmnop', 6, 6)).toBe('sk-abc...klmnop')
+  })
+
+  it('returns stars when value shorter than head+tail', () => {
+    expect(maskSecret('abc', 6, 6)).toBe('***')
   })
 })

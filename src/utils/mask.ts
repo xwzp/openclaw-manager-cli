@@ -1,7 +1,7 @@
-export function maskSecret(value: string): string {
+export function maskSecret(value: string, headLen = 4, tailLen = 3): string {
   if (!value) return ''
-  if (value.length <= 7) return '*'.repeat(value.length)
-  const prefix = value.slice(0, 4)
-  const suffix = value.slice(-3)
+  if (value.length <= headLen + tailLen) return '*'.repeat(value.length)
+  const prefix = value.slice(0, headLen)
+  const suffix = value.slice(-tailLen)
   return `${prefix}...${suffix}`
 }

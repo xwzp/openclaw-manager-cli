@@ -1,4 +1,4 @@
-import { input, select, password, confirm } from '@inquirer/prompts'
+import { input, select, confirm } from '@inquirer/prompts'
 import { homedir } from 'os'
 import path from 'path'
 import chalk from 'chalk'
@@ -140,9 +140,10 @@ async function collectAgentFields(svc: AgentSvc, initial: AgentAddParams): Promi
     validate: (value) => value.trim() ? true : '显示名称不能为空',
   })
 
-  params.apiKey = await password({
+  params.apiKey = await input({
     message: 'Nebula API Key:',
     validate: (value) => value.trim() ? true : 'API Key 不能为空',
+    transformer: (value, { isFinal }) => isFinal ? maskSecret(value, 6, 6) : value,
   })
   if (await svc.isApiKeyDuplicate(params.apiKey)) {
     log.warn('该 API Key 已被其他 Agent 使用')
@@ -163,9 +164,10 @@ async function collectAgentFields(svc: AgentSvc, initial: AgentAddParams): Promi
     log.warn('该飞书 App ID 已被其他 Agent 使用')
   }
 
-  params.feishuAppSecret = await password({
+  params.feishuAppSecret = await input({
     message: '飞书 App Secret:',
     validate: (value) => value.trim() ? true : 'App Secret 不能为空',
+    transformer: (value, { isFinal }) => isFinal ? maskSecret(value, 6, 6) : value,
   })
 
   return params
@@ -192,7 +194,10 @@ async function collectSingleField(svc: AgentSvc, params: AgentAddParams, field: 
       updated.name = await input({ message: '显示名称:', default: params.name })
       break
     case 'apiKey':
-      updated.apiKey = await password({ message: 'Nebula API Key:' })
+      updated.apiKey = await input({
+        message: 'Nebula API Key:',
+        transformer: (value, { isFinal }) => isFinal ? maskSecret(value, 6, 6) : value,
+      })
       if (await svc.isApiKeyDuplicate(updated.apiKey)) log.warn('该 API Key 已被其他 Agent 使用')
       break
     case 'modelId':
@@ -207,7 +212,10 @@ async function collectSingleField(svc: AgentSvc, params: AgentAddParams, field: 
       if (await svc.isFeishuAppIdDuplicate(updated.feishuAppId)) log.warn('该飞书 App ID 已被其他 Agent 使用')
       break
     case 'feishuAppSecret':
-      updated.feishuAppSecret = await password({ message: '飞书 App Secret:' })
+      updated.feishuAppSecret = await input({
+        message: '飞书 App Secret:',
+        transformer: (value, { isFinal }) => isFinal ? maskSecret(value, 6, 6) : value,
+      })
       break
   }
 
@@ -221,10 +229,10 @@ function printSummary(title: string, params: AgentAddParams) {
   console.log('│')
   console.log(`│  Agent ID:         ${params.id}`)
   console.log(`│  显示名称:         ${params.name}`)
-  console.log(`│  Nebula API Key:   ${maskSecret(params.apiKey)}`)
+  console.log(`│  Nebula API Key:   ${maskSecret(params.apiKey, 6, 6)}`)
   console.log(`│  模型:             ${modelName}`)
   console.log(`│  飞书 App ID:      ${params.feishuAppId}`)
-  console.log(`│  飞书 App Secret:  ${maskSecret(params.feishuAppSecret)}`)
+  console.log(`│  飞书 App Secret:  ${maskSecret(params.feishuAppSecret, 6, 6)}`)
   console.log('│')
   console.log(chalk.bold('└'))
   console.log()
@@ -288,7 +296,10 @@ async function handleEdit(svc: AgentSvc, agents: AgentInfo[]) {
   let newValue: string
   switch (field) {
     case 'apiKey':
-      newValue = await password({ message: '新的 Nebula API Key:' })
+      newValue = await input({
+        message: '新的 Nebula API Key:',
+        transformer: (value, { isFinal }) => isFinal ? maskSecret(value, 6, 6) : value,
+      })
       if (await svc.isApiKeyDuplicate(newValue)) log.warn('该 API Key 已被其他 Agent 使用')
       break
     case 'modelId':
@@ -302,7 +313,10 @@ async function handleEdit(svc: AgentSvc, agents: AgentInfo[]) {
       if (await svc.isFeishuAppIdDuplicate(newValue)) log.warn('该飞书 App ID 已被其他 Agent 使用')
       break
     case 'feishuAppSecret':
-      newValue = await password({ message: '新的飞书 App Secret:' })
+      newValue = await input({
+        message: '新的飞书 App Secret:',
+        transformer: (value, { isFinal }) => isFinal ? maskSecret(value, 6, 6) : value,
+      })
       break
     default:
       return
@@ -311,7 +325,7 @@ async function handleEdit(svc: AgentSvc, agents: AgentInfo[]) {
   // Show edit summary
   const agent = agents.find(a => a.id === agentId)!
   const displayValue = (field === 'apiKey' || field === 'feishuAppSecret')
-    ? maskSecret(newValue)
+    ? maskSecret(newValue, 6, 6)
     : (field === 'modelId' ? (DEFAULT_MODELS.find(m => m.id === newValue)?.name ?? newValue) : newValue)
 
   console.log()
