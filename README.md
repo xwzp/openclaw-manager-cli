@@ -8,13 +8,19 @@ OpenClaw 安装和 Agent 管理的命令行工具。
 
 ```bash
 # 安装 OpenClaw
-npx github:xwzp/openclaw-manager-cli#main install
+npx github:xwzp/openclaw-manager-cli install
 
 # 管理 Agent
-npx github:xwzp/openclaw-manager-cli#main agent
+npx github:xwzp/openclaw-manager-cli agent
 
 # 卸载
-npx github:xwzp/openclaw-manager-cli#main uninstall
+npx github:xwzp/openclaw-manager-cli uninstall
+```
+
+如果需要保证拉取最新版本，加上 `#main`：
+
+```bash
+npx github:xwzp/openclaw-manager-cli#main install
 ```
 
 ## 命令
