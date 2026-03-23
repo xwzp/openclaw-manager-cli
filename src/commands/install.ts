@@ -8,6 +8,8 @@ import { createFsAdapter } from '../adapters/fs-adapter.js'
 import { createFsConfigRepo, createFsManagerConfigRepo, createFsInstallProgressRepo } from '../adapters/fs-config-repo.js'
 import { createInstallService } from '../core/install-service.js'
 import { createDepService } from '../core/dep-service.js'
+import { createSkillService } from '../core/skill-service.js'
+import { STANDARD_SKILLS, SANDBOX_SKILLS, DEFAULT_HOOKS } from '../core/configgen.js'
 
 export async function installCommand(options: { mode?: string }) {
   const home = homedir()
@@ -46,6 +48,7 @@ export async function installCommand(options: { mode?: string }) {
   )
   const installService = createInstallService(shell, configRepo, mgrConfigRepo, progressRepo, fsPort)
   const depService = createDepService(shell)
+  const skillService = createSkillService(shell)
 
   // Check for resume
   const existingProgress = await installService.loadProgress()
@@ -88,6 +91,20 @@ export async function installCommand(options: { mode?: string }) {
             await depService.installDep(dep)
             spinner.succeed(`  ${dep.name} 安装完成`)
           }
+        }
+      } else if (step.name === 'skills') {
+        // Skills step: show per-skill and per-hook status
+        const skills = mode === 'standard' ? STANDARD_SKILLS : SANDBOX_SKILLS
+        console.log(`${stepPrefix} ${step.label}`)
+        for (const skill of skills) {
+          const spinner = ora(`  [Skill] ${skill.name}${skill.kind !== 'none' ? ` (${skill.kind}: ${skill.formula ?? ''})` : ''}`).start()
+          await skillService.enableSkill(skill)
+          spinner.succeed(`  [Skill] ${skill.name}`)
+        }
+        for (const hook of DEFAULT_HOOKS) {
+          const spinner = ora(`  [Hook] ${hook}`).start()
+          await skillService.enableHook(hook)
+          spinner.succeed(`  [Hook] ${hook}`)
         }
       } else {
         // Normal step: single spinner
