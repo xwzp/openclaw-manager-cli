@@ -1,4 +1,5 @@
 import { homedir } from 'os'
+import { existsSync } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import type { ConfigRepo, ManagerConfigRepo, InstallProgressRepo, ShellPort, FsPort } from './ports.js'
@@ -6,6 +7,18 @@ import type { InstallProgress } from '../types.js'
 import { generateBaseConfig, applyStandardMode, applySandboxMode, STANDARD_SKILLS, SANDBOX_SKILLS, DEFAULT_HOOKS } from './configgen.js'
 import { createDepService } from './dep-service.js'
 import { createSkillService } from './skill-service.js'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+function resolveTemplatesDir(): string {
+  // Bundled: dist/index.js → dist/templates/
+  const bundled = path.join(__dirname, 'templates')
+  if (existsSync(bundled)) return bundled
+  // Dev (tsx): src/core/install-service.ts → src/templates/
+  return path.join(__dirname, '..', 'templates')
+}
+
+const TEMPLATES_DIR = resolveTemplatesDir()
 
 export interface InstallStep {
   name: string
@@ -108,10 +121,7 @@ export function createInstallService(
       async run() {
         const home = homedir()
         const openclawDir = path.join(home, '.openclaw')
-        const gitignoreSrc = path.join(
-          path.dirname(fileURLToPath(import.meta.url)),
-          '..', 'templates', 'openclaw-gitignore',
-        )
+        const gitignoreSrc = path.join(TEMPLATES_DIR, 'openclaw-gitignore')
         // Copy .gitignore
         await shell.exec(`cp "${gitignoreSrc}" "${path.join(openclawDir, '.gitignore')}"`)
         // Init git repo if not already
@@ -131,10 +141,7 @@ export function createInstallService(
       async run() {
         const home = homedir()
         const destDir = path.join(home, '.openclaw', 'skills')
-        const srcDir = path.join(
-          path.dirname(fileURLToPath(import.meta.url)),
-          '..', 'templates', 'skills',
-        )
+        const srcDir = path.join(TEMPLATES_DIR, 'skills')
         await shell.exec(`cp -r "${srcDir}/." "${destDir}/"`)
       },
     })
@@ -158,10 +165,7 @@ export function createInstallService(
       label: '安装自动提交 LaunchAgent',
       async run() {
         const home = homedir()
-        const templateDir = path.join(
-          path.dirname(fileURLToPath(import.meta.url)),
-          '..', 'templates',
-        )
+        const templateDir = TEMPLATES_DIR
 
         // Copy autocommit script
         const scriptsDir = path.join(home, '.openclaw', 'scripts')
