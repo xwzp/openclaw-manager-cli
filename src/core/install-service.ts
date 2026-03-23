@@ -11,11 +11,14 @@ import { createSkillService } from './skill-service.js'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 function resolveTemplatesDir(): string {
-  // Bundled: dist/index.js → dist/templates/
-  const bundled = path.join(__dirname, 'templates')
-  if (existsSync(bundled)) return bundled
-  // Dev (tsx): src/core/install-service.ts → src/templates/
-  return path.join(__dirname, '..', 'templates')
+  const candidates = [
+    path.join(__dirname, 'templates'),             // Bundled: dist/index.js → dist/templates/
+    path.join(__dirname, '..', 'src', 'templates'), // npx from GitHub: dist/index.js → src/templates/
+    path.join(__dirname, '..', 'templates'),         // Dev (tsx): src/core/ → src/templates/
+  ]
+  const found = candidates.find(p => existsSync(p))
+  if (!found) throw new Error(`Templates directory not found, tried:\n${candidates.join('\n')}`)
+  return found
 }
 
 const TEMPLATES_DIR = resolveTemplatesDir()
