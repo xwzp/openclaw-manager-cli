@@ -101,14 +101,17 @@ export function createInstallService(
         async run() {
           const home = process.env.HOME ?? ''
           const srcDir = `${home}/.openclaw/src/openclaw`
+          const commit = '61d171ab0b2fe4abc9afe89c518586274b4b76c2'
+          await shell.exec(`git init ${srcDir}`)
           await shell.exec(
-            `git clone --depth 1 https://github.com/openclaw/openclaw.git ${srcDir}`,
-            { timeout: 300_000 },
-          )
-          await shell.exec(
-            'git checkout 61d171ab0b2fe4abc9afe89c518586274b4b76c2',
+            `git remote add origin https://github.com/openclaw/openclaw.git`,
             { cwd: srcDir },
           )
+          await shell.exec(
+            `git fetch --depth 1 origin ${commit}`,
+            { cwd: srcDir, timeout: 300_000 },
+          )
+          await shell.exec('git checkout FETCH_HEAD', { cwd: srcDir })
           const result = await shell.exec('bash scripts/sandbox-setup.sh', {
             cwd: srcDir,
             timeout: 600_000,
@@ -195,7 +198,7 @@ export function createInstallService(
       async run(m) {
         await mgrConfigRepo.save({
           install_mode: m,
-          openclaw_version: 'latest',
+          openclaw_version: '2026.3.13',
           installed_at: new Date().toISOString(),
         })
       },

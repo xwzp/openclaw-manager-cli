@@ -7,7 +7,7 @@ export const KNOWN_DEPS: DepInfo[] = [
   { name: 'mise', binary: 'mise', versionArg: '--version', installCmd: 'brew install mise' },
   { name: 'Node.js', binary: 'node', versionArg: '--version', installCmd: 'mise install node@25 && mise use -g node@25' },
   { name: 'fzf', binary: 'fzf', versionArg: '--version', installCmd: 'brew install fzf' },
-  { name: 'OpenClaw', binary: 'openclaw', versionArg: '--version', installCmd: 'npm install -g openclaw@latest' },
+  { name: 'OpenClaw', binary: 'openclaw', versionArg: '--version', installCmd: 'npm install -g openclaw@2026.3.13' },
 ]
 
 export function createDepService(shell: ShellPort) {
