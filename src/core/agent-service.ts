@@ -191,6 +191,9 @@ export function createAgentService(
       if (params.modelId) {
         const agent = cfg.agents.list.find(a => a.id === id)
         if (agent) agent.model = `nebula-${id}/${params.modelId}`
+        // Refresh provider model definitions with latest parameters
+        const provider = cfg.models.providers[`nebula-${id}`]
+        if (provider) provider.models = [...DEFAULT_MODELS]
       }
 
       if (params.feishuAppId) {
