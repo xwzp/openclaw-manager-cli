@@ -58,7 +58,7 @@ export function applySandboxMode(cfg: OpenClawConfig): void {
   cfg.tools = {
     profile: 'full',
     deny: ['gateway', 'nodes'],
-    elevated: { enabled: true, allowFrom: { feishu: ['*'] } },
+    elevated: { enabled: false, allowFrom: { feishu: ['*'] } },
     fs: { workspaceOnly: true },
     sandbox: {
       tools: {
@@ -75,10 +75,10 @@ export function applySandboxMode(cfg: OpenClawConfig): void {
 }
 
 export const DEFAULT_MODELS = [
-  { id: 'claude-opus-4-5', name: 'Claude Opus 4.5' },
-  { id: 'claude-opus-4-6', name: 'Claude Opus 4.6' },
-  { id: 'claude-sonnet-4-5', name: 'Claude Sonnet 4.5' },
-  { id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6' },
+  { id: 'claude-opus-4-5', name: 'Claude Opus 4.5', contextWindow: 200_000, maxTokens: 64_000, reasoning: true, input: ['text', 'image'] },
+  { id: 'claude-opus-4-6', name: 'Claude Opus 4.6', contextWindow: 1_000_000, maxTokens: 128_000, reasoning: true, input: ['text', 'image'] },
+  { id: 'claude-sonnet-4-5', name: 'Claude Sonnet 4.5', contextWindow: 1_000_000, maxTokens: 64_000, reasoning: true, input: ['text', 'image'] },
+  { id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6', contextWindow: 1_000_000, maxTokens: 128_000, reasoning: true, input: ['text', 'image'] },
 ] as const
 
 export const BROWSER_COLORS = [

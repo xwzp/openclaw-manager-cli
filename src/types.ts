@@ -34,6 +34,10 @@ export interface ProviderEntry {
 export interface ModelEntry {
   id: string
   name: string
+  contextWindow: number
+  maxTokens: number
+  reasoning: boolean
+  input: string[]
 }
 
 export interface AgentEntry {
